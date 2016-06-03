@@ -16,8 +16,11 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-public class AESUtils {
-    public static final String TAG = AESUtils.class.getSimpleName();
+/**
+ * Created by Administrator on 2016/4/14.
+ */
+public class AES {
+    public static final String TAG = com.uutils.crypto.AES.class.getSimpleName();
 
     private static final String AES = "AES";
     private static final String SHA1 = "SHA1PRNG";
@@ -25,9 +28,9 @@ public class AESUtils {
     private static final String AES_METHOD2 = "AES/CBC/PKCS5Padding";
 
     @SuppressWarnings("resource")
-    private static boolean AES(int cipherMode, String seed,
-                               String sourceFilePath,
-                               String targetFilePath) {
+    private static boolean dowork(int cipherMode, String seed,
+                                  String sourceFilePath,
+                                  String targetFilePath) {
         boolean result = false;
         FileChannel sourceFC = null;
         FileChannel targetFC = null;
@@ -44,7 +47,7 @@ public class AESUtils {
             byte[] rawkey = getRawKey(seed.getBytes());
             File sourceFile = new File(sourceFilePath);
             File targetFile = new File(targetFilePath);
-
+            long Filelen = sourceFile.length();
             sourceFC = new FileInputStream(sourceFile).getChannel();
             targetFC = new FileOutputStream(targetFile).getChannel();
 
@@ -60,12 +63,12 @@ public class AESUtils {
 
                 byte[] byteList = new byte[byteData.remaining()];
                 byteData.get(byteList, 0, byteList.length);
-//此处，若不使用数组加密解密会失败，因为当byteData达不到1024个时，加密方式不同对空白字节的处理也不相同，从而导致成功与失败。 
+//此处，若不使用数组加密解密会失败，因为当byteData达不到1024个时，加密方式不同对空白字节的处理也不相同，从而导致成功与失败。
                 byte[] bytes = mCipher.doFinal(byteList);
                 targetFC.write(ByteBuffer.wrap(bytes));
                 byteData.clear();
             }
-            result = true;
+            result = Filelen == targetFile.length();
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -89,11 +92,11 @@ public class AESUtils {
     }
 
     public static boolean encrypttFile(String seed, String sourcefile, String targetfile) {
-        return AES(Cipher.ENCRYPT_MODE, seed, sourcefile, targetfile);
+        return dowork(Cipher.ENCRYPT_MODE, seed, sourcefile, targetfile);
     }
 
     public static boolean decryptFile(String seed, String sourcefile, String targetfile) {
-        return AES(Cipher.DECRYPT_MODE, seed, sourcefile, targetfile);
+        return dowork(Cipher.DECRYPT_MODE, seed, sourcefile, targetfile);
     }
 
     /**

@@ -15,6 +15,11 @@ public class Base64 {
         return encodeToString(data).getBytes();
     }
 
+    /***
+     *
+     * @param data 数组
+     * @return 16进制字符串
+     */
     public static String encodeToString(byte[] data) {
         int start = 0;
         int len = data.length;
@@ -25,8 +30,7 @@ public class Base64 {
         int n = 0;
 
         while (i <= end) {
-            int d = ((((int) data[i]) & 0x0ff) << 16)
-                    | ((((int) data[i + 1]) & 0x0ff) << 8)
+            int d = ((((int) data[i]) & 0x0ff) << 16) | ((((int) data[i + 1]) & 0x0ff) << 8)
                     | (((int) data[i + 2]) & 0x0ff);
 
             buf.append(legalChars[(d >> 18) & 63]);
@@ -43,8 +47,7 @@ public class Base64 {
         }
 
         if (i == start + len - 2) {
-            int d = ((((int) data[i]) & 0x0ff) << 16)
-                    | ((((int) data[i + 1]) & 255) << 8);
+            int d = ((((int) data[i]) & 0x0ff) << 16) | ((((int) data[i + 1]) & 255) << 8);
 
             buf.append(legalChars[(d >> 18) & 63]);
             buf.append(legalChars[(d >> 12) & 63]);
@@ -80,16 +83,21 @@ public class Base64 {
             }
     }
 
-    /**
-     * Decodes the given Base64 encoded String to a new byte array. The byte
-     * array holding the decoded data is returned.
+    /***
+     *
+     * @param s 16进制字符串
+     * @return 数组
      */
     public static byte[] decode(String s) {
         return decode(s.getBytes());
     }
 
+    /***
+     *
+     * @param s 16进制字符串的byte数组
+     * @return 数组
+     */
     public static byte[] decode(byte[] s) {
-
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
             decode(s, bos);
@@ -118,10 +126,7 @@ public class Base64 {
             if (i == len)
                 break;
 
-            int tri = (decode(s[i]) << 18)
-                    + (decode(s[i + 1]) << 12)
-                    + (decode(s[i + 2]) << 6)
-                    + (decode(s[i + 3]));
+            int tri = (decode(s[i]) << 18) + (decode(s[i + 1]) << 12) + (decode(s[i + 2]) << 6) + (decode(s[i + 3]));
 
             os.write((tri >> 16) & 255);
             if (s[i + 2] == '=')
